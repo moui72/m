@@ -1,4 +1,5 @@
 from csv import reader
+from glob import glob
 from pathlib import Path
 from random import choice
 from typing import Dict, List, Optional, Tuple
@@ -31,19 +32,20 @@ class Station(object):
             prev = value
         return flux
 
+
 class App(object):
     stations: Dict[int, Station] = {}
     lowest = float("+inf")
     lowest_readings: List[Tuple[int, float]] = []
-    relative_data_path = "data.csv"
     highest_fluctuation: Optional[Station] = None
+    data_file_path: Path = None
 
-    def __init__(self, path: str = None):
-        path = path or self.relative_data_path
-        self.path = Path(__file__).parent / path
+    def __init__(self, filename: str = "data.csv"):
+        project_root = Path(__file__).parent.parent
+        self.data_file_path = next(project_root.glob(f"**/{filename}"))
 
     def load_data(self) -> None:
-        with open(self.path, "r") as data:
+        with open(self.data_file_path, "r") as data:
             lines = reader(data)
             next(lines) # skip header row
             for line in lines:
